@@ -1,0 +1,34 @@
+package ${entityPkName};
+
+#foreach ($import in $importList)
+import ${import};
+#end
+import java.io.Serializable;
+import lombok.Data;
+
+
+/**
+ * ${tableName}
+ */
+
+@Data
+public class ${ClassName} implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+#foreach ($column in $columns)
+    /** $column.columnComment */
+#if($column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#end
+    private $column.javaType $column.javaField;
+
+
+#end
+
+}

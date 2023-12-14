@@ -1,0 +1,39 @@
+package ${packageName}.domain;
+
+#foreach ($import in $importList)
+import ${import};
+#end
+import com.zyq.test.common.Constant;
+import zyq.annotation.*;
+import lombok.Data;
+
+
+/**
+ * ${tableName}
+ */
+@Data
+@GenConfig(projectPath = Constant.PROJECT_PATH)
+@GenVo(pkName = "com.zjhc.pc.controller.djrest")
+@GenDto(pkName = "com.zjhc.pc.controller.djrest")
+@GenService(pkName = "com.zjhc.pc.controller.djrest")
+@GenServiceImpl(pkName = "com.zjhc.pc.controller.djrest")
+@GenController(pkName = "com.zjhc.pc.controller.djrest")
+public class ${ClassName}
+{
+
+#foreach ($column in $columns)
+    #if(!$table.isSuperColumn($column.javaField))
+    /** $column.columnComment */
+        #if($column.list)
+            #set($parentheseIndex=$column.columnComment.indexOf("（"))
+            #if($parentheseIndex != -1)
+                #set($comment=$column.columnComment.substring(0, $parentheseIndex))
+            #else
+                #set($comment=$column.columnComment)
+            #end
+        #end
+    private $column.javaType $column.javaField;
+    #end
+#end
+
+}

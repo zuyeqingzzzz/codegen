@@ -1,0 +1,4 @@
+zyq.processor.impl.GenDtoProcessor
+zyq.processor.impl.GenServiceImplProcessor
+zyq.processor.impl.GenServiceProcessor
+zyq.processor.impl.GenVoProcessor

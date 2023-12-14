@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="codegen-common" />
+        <module name="codegen-apt" />
+        <module name="codegen-velocity" />
+      </profile>
+      <profile name="Annotation profile for codegen" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/codegen/apt/codegen-apt/1.0-SNAPSHOT/codegen-apt-1.0-SNAPSHOT.jar" />
+        </processorPath>
+        <module name="codegen-model" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="codegen" target="1.8" />
+      <module name="codegen-apt" target="1.8" />
+      <module name="codegen-common" target="1.8" />
+      <module name="codegen-model" target="1.8" />
+      <module name="codegen-velocity" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="codegen-model" options="-Xdiags:verbose -J-Djavax.annotation.processing.debug=true" />
+    </option>
+  </component>
+</project>
