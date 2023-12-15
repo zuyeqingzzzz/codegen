@@ -1,0 +1,45 @@
+package ${modelPkName};
+
+#foreach ($import in $importList)
+import ${import};
+#end
+import com.zyq.apt.annotation.*;
+import com.zyq.common.constant.PackageConstant;
+import lombok.Data;
+
+
+/**
+ * ${functionName}
+ */
+@Data
+@EntityConfig(pkName = "${entityPkName}")
+@GenVo(pkName = "${voPkName}", projectPath = ${servicePath})
+@GenDto(pkName = "${dtoPkName}", projectPath = ${servicePath})
+@GenService(pkName= "${servicePkName}", projectPath = ${servicePath})
+@GenServiceImpl(pkName = "${serviceImplPkName}", projectPath = ${servicePath})
+@GenController(pkName = "${controllerPkName}", projectPath = ${controllerPath})
+public class ${ClassName}
+{
+
+#foreach ($column in $columns)
+    #if(!$table.isSuperColumn($column.javaField))
+    /** $column.columnComment */
+        #if($column.list)
+            #set($parentheseIndex=$column.columnComment.indexOf("（"))
+            #if($parentheseIndex != -1)
+                #set($comment=$column.columnComment.substring(0, $parentheseIndex))
+            #else
+                #set($comment=$column.columnComment)
+            #end
+        #end
+        #if($column==$table.pkColumn)
+    @Key
+            #else#end
+        #end
+    private $column.javaType $column.javaField;
+
+
+    #end
+
+
+}

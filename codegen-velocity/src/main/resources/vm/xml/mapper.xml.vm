@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="${mapperPkName}.${ClassName}Mapper">
     
-    <resultMap type="${ClassName}" id="${ClassName}Result">
+    <resultMap type="${entityPkName}.${ClassName}" id="${ClassName}Result">
 #foreach ($column in $columns)
         <result property="${column.javaField}"    column="${column.columnName}"    />
 #end
@@ -14,7 +13,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select#foreach($column in $columns) $column.columnName#if($foreach.count != $columns.size()),#end#end from ${tableName}
     </sql>
 
-    <select id="select${ClassName}List" parameterType="${ClassName}" resultMap="${ClassName}Result">
+    <select id="select${ClassName}List" parameterType="${entityPkName}.${ClassName}" resultMap="${ClassName}Result">
         <include refid="select${ClassName}Vo"/>
         <where>  
 #foreach($column in $columns)
@@ -23,7 +22,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 #set($javaType=$column.javaType)
 #set($columnName=$column.columnName)
 #set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
-#if($column.query)
 #if($column.queryType == "EQ")
             <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName = #{$javaField}</if>
 #elseif($queryType == "NE")
@@ -37,41 +35,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 #elseif($queryType == "LTE")
             <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &lt;= #{$javaField}</if>
 #elseif($queryType == "LIKE")
-            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName like concat('%', #{$javaField}, '%')</if>
-#elseif($queryType == "BETWEEN")
-            <if test="params.begin$AttrName != null and params.begin$AttrName != '' and params.end$AttrName != null and params.end$AttrName != ''"> and $columnName between #{params.begin$AttrName} and #{params.end$AttrName}</if>
-#end
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName like concat('%', #{$javaField}::varchar, '%')</if>
 #end
 #end
         </where>
     </select>
     
-##    <select id="select${ClassName}By${pkColumn.capJavaField}" parameterType="${pkColumn.javaType}" resultMap="#if($table.sub)${ClassName}${subClassName}Result#else${ClassName}Result#end">
-###if($table.crud || $table.tree)
-##        <include refid="select${ClassName}Vo"/>
-##        where ${pkColumn.columnName} = #{${pkColumn.javaField}}
-###elseif($table.sub)
-##        select#foreach($column in $columns) a.$column.columnName#if($foreach.count != $columns.size()),#end#end,
-##           #foreach($column in $subTable.columns) b.$column.columnName as sub_$column.columnName#if($foreach.count != $subTable.columns.size()),#end#end
-##
-##        from ${tableName} a
-##        left join ${subTableName} b on b.${subTableFkName} = a.${pkColumn.columnName}
-##        where a.${pkColumn.columnName} = #{${pkColumn.javaField}}
-###end
-##    </select>
+    <select id="select${ClassName}By${pkColumn.capJavaField}" parameterType="${pkColumn.javaType}" resultMap="${ClassName}Result">
+        <include refid="select${ClassName}Vo"/>
+        where ${pkColumn.columnName} = #{${pkColumn.javaField}}
+    </select>
         
-    <insert id="insert${ClassName}" parameterType="${ClassName}"#if($pkColumn.increment) useGeneratedKeys="true" keyProperty="$pkColumn.javaField"#end>
+    <insert id="insert${ClassName}" parameterType="${entityPkName}.${ClassName}" useGeneratedKeys="true" keyProperty="$pkColumn.javaField">
         insert into ${tableName}
         <trim prefix="(" suffix=")" suffixOverrides=",">
 #foreach($column in $columns)
-#if($column.columnName != $pkColumn.columnName || !$pkColumn.increment)
+#if($column.columnName != $pkColumn.columnName)
             <if test="$column.javaField != null#if($column.javaType == 'String' && $column.required) and $column.javaField != ''#end">$column.columnName,</if>
 #end
 #end
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 #foreach($column in $columns)
-#if($column.columnName != $pkColumn.columnName || !$pkColumn.increment)
+#if($column.columnName != $pkColumn.columnName)
             <if test="$column.javaField != null#if($column.javaType == 'String' && $column.required) and $column.javaField != ''#end">#{$column.javaField},</if>
 #end
 #end
@@ -79,13 +65,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <insert id="insertBatch">
-        insert into ${tableName}(#foreach($column in $columns) $column.columnName#if($foreach.count != $columns.size()),#end#end) values
+        insert into ${tableName}(
+        #foreach($column in $columns)
+            #if($column.columnName != $pkColumn.columnName)
+                $column.columnName#if($foreach.count != $columns.size()),
+            #end#end
+        #end
+
+        )values
         <foreach item="item" index="index" collection="list" separator=",">
-            (#foreach($column in $columns) #{item.$column.javaField}#if($foreach.count != $columns.size()),#end#end)
+            (
+#foreach($column in $columns)
+            #if($column.columnName != $pkColumn.columnName)
+                #{item.$column.javaField}#if($foreach.count != $columns.size()),
+            #end#end
+        #end
+)
         </foreach>
     </insert>
 
-    <update id="update${ClassName}" parameterType="${ClassName}">
+    <update id="update${ClassName}" parameterType="${entityPkName}.${ClassName}">
         update ${tableName}
         <trim prefix="SET" suffixOverrides=",">
 #foreach($column in $columns)
@@ -101,10 +100,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from ${tableName} where ${pkColumn.columnName} = #{${pkColumn.javaField}}
     </delete>
 
-    <delete id="delete${ClassName}By${pkColumn.capJavaField}s" parameterType="String">
+    <delete id="delete${ClassName}By${pkColumn.capJavaField}s" parameterType="${pkColumn.javaType}">
         delete from ${tableName} where ${pkColumn.columnName} in 
         <foreach item="${pkColumn.javaField}" collection="array" open="(" separator="," close=")">
             #{${pkColumn.javaField}}
         </foreach>
     </delete>
+
 </mapper>

@@ -22,13 +22,11 @@
             <groupId>com.zyq.codegen.apt</groupId>
             <artifactId>codegen-apt</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>slf4j-api</artifactId>-->
-<!--                    <groupId>org.slf4j</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+        </dependency>
+        <dependency>
+            <artifactId>codegen-common</artifactId>
+            <groupId>com.zyq.codegen.common</groupId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -46,7 +44,7 @@
                     <annotationProcessorPaths>
                         <path>
                             <artifactId>codegen-apt</artifactId>
-                            <groupId>codegen.apt</groupId>
+                            <groupId>com.zyq.codegen.apt</groupId>
                             <version>1.0-SNAPSHOT</version>
                         </path>
                     </annotationProcessorPaths>

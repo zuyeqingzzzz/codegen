@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zyq.model.java.StdChMapper">
+    
+    <resultMap type="com.zyq.model.java.StdCh" id="StdChResult">
+        <result property="chId"    column="ch_id"    />
+        <result property="chName"    column="ch_name"    />
+        <result property="chNo"    column="ch_no"    />
+        <result property="fillUser"    column="fill_user"    />
+        <result property="belongDept"    column="belong_dept"    />
+        <result property="belongZj"    column="belong_zj"    />
+        <result property="fillDate"    column="fill_date"    />
+        <result property="statisticsType"    column="statistics_type"    />
+        <result property="chDept"    column="ch_dept"    />
+        <result property="lvl"    column="lvl"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="del"    column="del"    />
+    </resultMap>
+
+    <sql id="selectStdChVo">
+        select ch_id, ch_name, ch_no, fill_user, belong_dept, belong_zj, fill_date, statistics_type, ch_dept, lvl, create_time, create_by, update_time, update_by, del from std_ch
+    </sql>
+
+    <select id="selectStdChList" parameterType="com.zyq.model.java.StdCh" resultMap="StdChResult">
+        <include refid="selectStdChVo"/>
+        <where>  
+            <if test="chId != null "> and ch_id = #{chId}</if>
+            <if test="chName != null  and chName != ''"> and ch_name like concat('%', #{chName}::varchar, '%')</if>
+            <if test="chNo != null  and chNo != ''"> and ch_no = #{chNo}</if>
+            <if test="fillUser != null "> and fill_user = #{fillUser}</if>
+            <if test="belongDept != null "> and belong_dept = #{belongDept}</if>
+            <if test="belongZj != null "> and belong_zj = #{belongZj}</if>
+            <if test="fillDate != null  and fillDate != ''"> and fill_date = #{fillDate}</if>
+            <if test="statisticsType != null  and statisticsType != ''"> and statistics_type = #{statisticsType}</if>
+            <if test="chDept != null "> and ch_dept = #{chDept}</if>
+            <if test="lvl != null "> and lvl = #{lvl}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="createBy != null "> and create_by = #{createBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+            <if test="updateBy != null "> and update_by = #{updateBy}</if>
+            <if test="del != null  and del != ''"> and del = #{del}</if>
+        </where>
+    </select>
+    
+    <select id="selectStdChByChId" parameterType="Long" resultMap="StdChResult">
+        <include refid="selectStdChVo"/>
+        where ch_id = #{chId}
+    </select>
+        
+    <insert id="insertStdCh" parameterType="com.zyq.model.java.StdCh" useGeneratedKeys="true" keyProperty="chId">
+        insert into std_ch
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="chName != null">ch_name,</if>
+            <if test="chNo != null">ch_no,</if>
+            <if test="fillUser != null">fill_user,</if>
+            <if test="belongDept != null">belong_dept,</if>
+            <if test="belongZj != null">belong_zj,</if>
+            <if test="fillDate != null">fill_date,</if>
+            <if test="statisticsType != null">statistics_type,</if>
+            <if test="chDept != null">ch_dept,</if>
+            <if test="lvl != null">lvl,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="del != null">del,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="chName != null">#{chName},</if>
+            <if test="chNo != null">#{chNo},</if>
+            <if test="fillUser != null">#{fillUser},</if>
+            <if test="belongDept != null">#{belongDept},</if>
+            <if test="belongZj != null">#{belongZj},</if>
+            <if test="fillDate != null">#{fillDate},</if>
+            <if test="statisticsType != null">#{statisticsType},</if>
+            <if test="chDept != null">#{chDept},</if>
+            <if test="lvl != null">#{lvl},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="del != null">#{del},</if>
+         </trim>
+    </insert>
+
+    <insert id="insertBatch">
+        insert into std_ch(
+                ch_name,
+                ch_no,
+                fill_user,
+                belong_dept,
+                belong_zj,
+                fill_date,
+                statistics_type,
+                ch_dept,
+                lvl,
+                create_time,
+                create_by,
+                update_time,
+                update_by,
+                del
+        )values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (
+                #{item.chName},
+                #{item.chNo},
+                #{item.fillUser},
+                #{item.belongDept},
+                #{item.belongZj},
+                #{item.fillDate},
+                #{item.statisticsType},
+                #{item.chDept},
+                #{item.lvl},
+                #{item.createTime},
+                #{item.createBy},
+                #{item.updateTime},
+                #{item.updateBy},
+                #{item.del})
+        </foreach>
+    </insert>
+
+    <update id="updateStdCh" parameterType="com.zyq.model.java.StdCh">
+        update std_ch
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="chName != null">ch_name = #{chName},</if>
+            <if test="chNo != null">ch_no = #{chNo},</if>
+            <if test="fillUser != null">fill_user = #{fillUser},</if>
+            <if test="belongDept != null">belong_dept = #{belongDept},</if>
+            <if test="belongZj != null">belong_zj = #{belongZj},</if>
+            <if test="fillDate != null">fill_date = #{fillDate},</if>
+            <if test="statisticsType != null">statistics_type = #{statisticsType},</if>
+            <if test="chDept != null">ch_dept = #{chDept},</if>
+            <if test="lvl != null">lvl = #{lvl},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="del != null">del = #{del},</if>
+        </trim>
+        where ch_id = #{chId}
+    </update>
+
+    <delete id="deleteStdChByChId" parameterType="Long">
+        delete from std_ch where ch_id = #{chId}
+    </delete>
+
+    <delete id="deleteStdChByChIds" parameterType="Long">
+        delete from std_ch where ch_id in 
+        <foreach item="chId" collection="array" open="(" separator="," close=")">
+            #{chId}
+        </foreach>
+    </delete>
+</mapper>
