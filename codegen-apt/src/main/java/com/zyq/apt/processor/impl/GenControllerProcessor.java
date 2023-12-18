@@ -109,8 +109,8 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         tableName = context.getTableComment();
         servicePackageName = context.getServicePackageName();
         serviceClassName = context.getServiceClassName();
-        entityPackageName = "com.zjhc.platform.gkdomain.entity";
-        entityClassName = "StaAreaTargetPc";
+        entityPackageName = context.getEntityPackageName();
+        entityClassName = context.getEntityClassName();
         export = context.isExport();
 
         dto = ClassName.get(dtoPackageName, dtoClassName);

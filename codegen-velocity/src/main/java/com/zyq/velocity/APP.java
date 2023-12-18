@@ -8,12 +8,12 @@ public class APP {
     public static void main(String[] args) {
 
         GenContext context = new GenContext();
-        context.setProjectPath("D:\\work\\project\\mys\\codegen\\codegen-model");
-        context.setXmlPkName("mybatis");
-        context.setEntityPkName("com.zyq.model.java");
-        context.setMapperPkName("com.zyq.model.java");
+        context.setProjectPath("D:\\work\\project\\tzcloud\\stdwk-tz\\std-service\\std-platform-service");
+        context.setXmlPkName("mybatis.gkmapper");
+        context.setMapperPkName("com.zjhc.platform.gkmapper");
+        context.setEntityPkName("com.zjhc.platform.gkdomain.entity");
 
         GenService service = new GenService();
-        service.generatorCode("std_ch", context, DbType.PgSQL);
+        service.generatorCode("std_manage_post", context, DbType.PgSQL);
     }
 }

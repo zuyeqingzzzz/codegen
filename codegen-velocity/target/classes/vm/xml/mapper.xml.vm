@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="${mapperPkName}.${ClassName}Mapper">
     
     <resultMap type="${entityPkName}.${ClassName}" id="${ClassName}Result">
 #foreach ($column in $columns)
-        <result property="${column.javaField}"    column="${column.columnName}"    />
+        <result property="${column.javaField}" column="${column.columnName}"/>
 #end
     </resultMap>
 
@@ -51,14 +51,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-ma
         <trim prefix="(" suffix=")" suffixOverrides=",">
 #foreach($column in $columns)
 #if($column.columnName != $pkColumn.columnName)
-            <if test="$column.javaField != null#if($column.javaType == 'String' && $column.required) and $column.javaField != ''#end">$column.columnName,</if>
+            <if test="$column.javaField != null#if($column.javaType == 'String') and $column.javaField != ''#end">$column.columnName,</if>
 #end
 #end
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 #foreach($column in $columns)
 #if($column.columnName != $pkColumn.columnName)
-            <if test="$column.javaField != null#if($column.javaType == 'String' && $column.required) and $column.javaField != ''#end">#{$column.javaField},</if>
+            <if test="$column.javaField != null#if($column.javaType == 'String') and $column.javaField != ''#end">#{$column.javaField},</if>
 #end
 #end
          </trim>
@@ -89,7 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-ma
         <trim prefix="SET" suffixOverrides=",">
 #foreach($column in $columns)
 #if($column.columnName != $pkColumn.columnName)
-            <if test="$column.javaField != null#if($column.javaType == 'String' && $column.required) and $column.javaField != ''#end">$column.columnName = #{$column.javaField},</if>
+            <if test="$column.javaField != null#if($column.javaType == 'String') and $column.javaField != ''#end">$column.columnName = #{$column.javaField},</if>
 #end
 #end
         </trim>
@@ -106,4 +106,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-ma
             #{${pkColumn.javaField}}
         </foreach>
     </delete>
+
 </mapper>

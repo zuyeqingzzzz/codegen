@@ -17,7 +17,6 @@ com\zyq\apt\spi\CodeGenProcessor.class
 com\zyq\apt\annotation\GenDto.class
 com\zyq\apt\processor\BaseCodeGenProcessor.class
 com\zyq\apt\processor\impl\GenControllerProcessor.class
-com\zyq\apt\annotation\EntityConfig.class
 com\zyq\apt\annotation\GenServiceImpl.class
 com\zyq\apt\processor\MethodCreator.class
 com\zyq\apt\annotation\Key.class

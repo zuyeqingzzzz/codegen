@@ -15,7 +15,6 @@ D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\processor\impl
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\annotation\GenVo.java
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\annotation\GenMapper.java
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\annotation\VoItem.java
-D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\annotation\EntityConfig.java
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\annotation\GenController.java
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\registry\CodeGenProcessorRegistry.java
 D:\work\project\mys\codegen\codegen-apt\src\main\java\com\zyq\apt\holder\ProcessingEnvHolder.java

@@ -5,6 +5,7 @@ import ${import};
 #end
 import com.zyq.apt.annotation.*;
 import com.zyq.common.constant.PackageConstant;
+import com.zyq.common.constant.MethodEnum;
 import lombok.Data;
 
 
@@ -12,7 +13,9 @@ import lombok.Data;
  * ${functionName}
  */
 @Data
-@EntityConfig(pkName = "${entityPkName}")
+@GenConfig(entityPkName = "${entityPkName}", mapperPkName = "${mapperPkName}",
+methodName = {MethodEnum.LIST, MethodEnum.INSERT, MethodEnum.DELETE, MethodEnum.EDIT}
+)
 @GenVo(pkName = "${voPkName}", projectPath = ${servicePath})
 @GenDto(pkName = "${dtoPkName}", projectPath = ${servicePath})
 @GenService(pkName= "${servicePkName}", projectPath = ${servicePath})

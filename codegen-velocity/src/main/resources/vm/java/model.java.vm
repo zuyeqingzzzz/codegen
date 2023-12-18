@@ -5,6 +5,7 @@ import ${import};
 #end
 import com.zyq.apt.annotation.*;
 import com.zyq.common.constant.PackageConstant;
+import com.zyq.common.constant.MethodEnum;
 import lombok.Data;
 
 

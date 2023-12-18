@@ -35,10 +35,10 @@ public interface ${ClassName}Mapper
     /**
      * 批量新增${functionName}
      *
-     * @param ${className}List ${functionName}
+     * @param list ${functionName}集合
      * @return 成功数
      */
-    int insertBatch(List<${ClassName}> ${className}List);
+    int insertBatch(List<${ClassName}> list);
 
     /**
      * 修改${functionName}

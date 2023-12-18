@@ -64,7 +64,7 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
                     return new RuntimeException();
                 });
         String entityClassName = typeElement.getSimpleName().toString();
-        context.setProjectPath(config.projectPath());
+//        context.setProjectPath(config.projectPath());
         context.setMapperPackageName(config.mapperPkName());
         context.setMethodNames(config.methodName());
         context.setMapperClassName(entityClassName + "Mapper");
