@@ -41,7 +41,6 @@ public class ${ClassName}
         #end
     private $column.javaType $column.javaField;
 
-
     #end
 
 

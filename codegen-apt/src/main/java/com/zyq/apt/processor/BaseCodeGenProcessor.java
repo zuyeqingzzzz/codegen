@@ -2,8 +2,9 @@ package com.zyq.apt.processor;
 
 import com.squareup.javapoet.*;
 import com.zyq.apt.annotation.*;
+import com.zyq.apt.constant.ConvertEnum;
 import com.zyq.apt.processor.impl.*;
-import com.zyq.apt.context.CodeGenContext;
+import com.zyq.apt.constant.CodeGenContext;
 import com.zyq.apt.holder.ProcessingEnvHolder;
 import com.zyq.apt.spi.CodeGenProcessor;
 import com.zyq.common.utils.StringUtils;
@@ -15,8 +16,6 @@ import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
     protected CodeGenContext context;
     protected MethodCreator methodCreator;
 
-    public BaseCodeGenProcessor () {
+    public BaseCodeGenProcessor() {
     }
 
 
@@ -57,14 +56,52 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
         context.setImplClassName(className + GenServiceImplProcessor.SUFFIX);
 
 
-
         GenConfig config = Optional.ofNullable(typeElement.getAnnotation(GenConfig.class))
                 .orElseThrow(() -> {
                     ProcessingEnvHolder.getHolder().getMessager().printMessage(Diagnostic.Kind.ERROR, "annotation GenConfig has not Configure");
                     return new RuntimeException();
                 });
+
+        List<? extends Element> fieldsElements = typeElement.getEnclosedElements();
+        List<VariableElement> variableElements = ElementFilter.fieldsIn(fieldsElements);
+        Optional<VariableElement> keyField = variableElements.stream().filter(e -> e.getAnnotation(Key.class) != null).findFirst();
+
+
+        Map<VariableElement, TypeName> voConvertMap = new HashMap<>();
+        Map<VariableElement, TypeName> dtoConvertMap = new HashMap<>();
+
+        variableElements.forEach(e -> {
+            DtoItem dtoItem = e.getAnnotation(DtoItem.class);
+            VoItem voItem = e.getAnnotation(VoItem.class);
+            if (Objects.nonNull(dtoItem)) {
+                ConvertEnum dtoType = dtoItem.converter();
+                TypeName dtoTypeName = ConvertEnum.convertType(dtoType);
+                if (dtoType.equals(ConvertEnum.DEFAULT)) {
+                    dtoTypeName = TypeName.get(e.asType());
+                }
+                dtoConvertMap.put(e, dtoTypeName);
+            }
+
+            if (Objects.nonNull(voItem)) {
+                ConvertEnum voType = voItem.converter();
+                TypeName voTypeName = ConvertEnum.convertType(voType);
+                if (voType.equals(ConvertEnum.DEFAULT)) {
+                    voTypeName = TypeName.get(e.asType());
+                }
+                voConvertMap.put(e, voTypeName);
+            }
+        });
+
+        context.setVoConvertMap(voConvertMap);
+        context.setDtoConvertMap(dtoConvertMap);
+
+        String key = "Id";
+        if (keyField.isPresent()) {
+            key = StringUtils.upper(keyField.get().getSimpleName().toString());
+        }
+        context.setKey(key);
+
         String entityClassName = typeElement.getSimpleName().toString();
-//        context.setProjectPath(config.projectPath());
         context.setMapperPackageName(config.mapperPkName());
         context.setMethodNames(config.methodName());
         context.setMapperClassName(entityClassName + "Mapper");
@@ -95,7 +132,7 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
 
         Elements elementUtils = ProcessingEnvHolder.getHolder().getElementUtils();
         // 保存表注释
-        String tableComment = elementUtils.getDocComment(typeElement);
+        String tableComment = elementUtils.getDocComment(typeElement).replace("\n", "").trim();
         context.setTableComment(StringUtils.cleanTableComment(tableComment));
         // 保存字段注释
         Map<VariableElement, String> fieldComment = context.getFieldComment();
@@ -115,33 +152,6 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
         }
     }
 
-
-    protected Type convertType(Class<?> type) {
-        if (type.equals(long.class) || type.equals(Long.class)) {
-            return Long.class;
-        } else if (type.equals(short.class) || type.equals(Short.class)) {
-            return Short.class;
-        } else if (type.equals(int.class) || type.equals(Integer.class)) {
-            return Integer.class;
-        } else if (type.equals(float.class) || type.equals(Float.class)) {
-            return Float.class;
-        } else if (type.equals(double.class) || type.equals(Double.class)) {
-            return Double.class;
-        } else if (type.equals(byte.class) || type.equals(Byte.class)) {
-            return Byte.class;
-        } else if (type.equals(boolean.class) || type.equals(Boolean.class)) {
-            return Boolean.class;
-        } else if (type.equals(String.class)) {
-            return String.class;
-        } else if (type.equals(BigDecimal.class)) {
-            return BigDecimal.class;
-//        } else if (type.equals(List.class)) {
-//            return List.class;
-        } else {
-            return Object.class;
-        }
-    }
-
     protected Set<VariableElement> getFields(TypeElement typeElement, Predicate<VariableElement> predicate) {
         List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
         List<VariableElement> variableElements = ElementFilter.fieldsIn(enclosedElements);
@@ -157,15 +167,17 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
     protected void genJavaFile(String projectPath, String pkName, TypeSpec spec, String sourcePath, boolean overrideSource) {
 
         JavaFile javaFile = JavaFile.builder(pkName, spec).build();
-        String dir = projectPath.replace("\\",File.separator) + File.separator + sourcePath.replace("/", File.separator);
+        String dir = projectPath.replace("\\", File.separator) + File.separator + sourcePath.replace("/", File.separator);
+        String filePath = dir + File.separator + pkName.replace(".", File.separator) + File.separator + spec.name + ".java";
 
         File sourceFile = new File(dir);
+        File file = new File(filePath);
 
         try {
-            if (!overrideSource) {
-                javaFile.writeTo(sourceFile);
+            if (file.exists() && !overrideSource) {
+                return;
             }
-
+            javaFile.writeTo(sourceFile);
         } catch (IOException e) {
             ProcessingEnvHolder.getHolder().getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }

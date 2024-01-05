@@ -22,12 +22,12 @@ public class PackageConstant {
     /**
      * app端service,mapper,entity地址
      */
-    public static final String PLATFORM_SERVICE_PATH = BASE_PATH + "std-platform-service";
+    public static final String PLATFORM_SERVICE_PATH = BASE_PATH + "std-service\\std-platform-service";
 
     /**
      * pc端service,mapper,entity地址
      */
-    public static final String SYSTEM_SERVICE_PATH = BASE_PATH + "std-system-service";
+    public static final String SYSTEM_SERVICE_PATH = BASE_PATH + "std-service\\std-system-service";
 
 
 }

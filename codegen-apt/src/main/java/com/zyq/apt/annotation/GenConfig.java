@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * @author YiQing
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Documented
 public @interface GenConfig {
 
@@ -18,7 +18,7 @@ public @interface GenConfig {
     String mapperPkName();
 
     // 需要生成哪些方法
-    MethodEnum[] methodName() default {MethodEnum.LIST, MethodEnum.INSERT, MethodEnum.DELETE, MethodEnum.EDIT};
+    MethodEnum[] methodName() default {MethodEnum.NONE};
 
 
 }

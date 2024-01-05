@@ -1,5 +1,6 @@
-package com.zyq.apt.context;
+package com.zyq.apt.constant;
 
+import com.squareup.javapoet.TypeName;
 import com.zyq.common.constant.MethodEnum;
 import lombok.Data;
 import javax.lang.model.element.VariableElement;
@@ -40,7 +41,7 @@ public class CodeGenContext {
     private String key;
 
     /**
-     * 是否需要导出 如果是的话 vo会加上Excel注解 controller的方法体也会不一样
+     * 是否需要导出 如果是的话 vo会加上Excel注解 controller也会有导出方法
      */
     private boolean export;
 
@@ -49,4 +50,7 @@ public class CodeGenContext {
      */
     private Map<VariableElement, String> fieldComment = new HashMap<>();
     private String tableComment;
+
+    private Map<VariableElement, TypeName> voConvertMap = new HashMap<>();
+    private Map<VariableElement, TypeName> dtoConvertMap = new HashMap<>();
 }

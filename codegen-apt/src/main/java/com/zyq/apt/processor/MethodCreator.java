@@ -4,10 +4,8 @@ package com.zyq.apt.processor;
 import com.squareup.javapoet.MethodSpec;
 import com.zyq.common.constant.MethodEnum;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface MethodCreator {
 
@@ -27,39 +25,26 @@ public interface MethodCreator {
 
 
     default List<MethodSpec> dispatch(MethodEnum[] methodEnum) {
-        List<MethodSpec> methodSpecs = new ArrayList<>();
-        List<MethodEnum> methodEnums = Arrays.asList(methodEnum);
 
-        if (methodEnums.contains(MethodEnum.LIST)) {
-            this.list().ifPresent(methodSpecs::add);
+        if (Arrays.asList(methodEnum).contains(MethodEnum.NONE)) {
+            return new ArrayList<>();
         }
 
-        if (methodEnums.contains(MethodEnum.INSERT)) {
-            this.insert().ifPresent(methodSpecs::add);
-        }
+        Map<MethodEnum, Optional<MethodSpec>> methodMap = new HashMap<>();
+        methodMap.put(MethodEnum.LIST, list());
+        methodMap.put(MethodEnum.EDIT, update());
+        methodMap.put(MethodEnum.INSERT, insert());
+        methodMap.put(MethodEnum.DELETE, delete());
+        methodMap.put(MethodEnum.VOLIST, voList());
+        methodMap.put(MethodEnum.FINDBYID, findById());
+        methodMap.put(MethodEnum.FINDBYPAGE, findByPage());
 
-        if (methodEnums.contains(MethodEnum.DELETE)) {
-            this.delete().ifPresent(methodSpecs::add);
-        }
+        return Arrays.stream(methodEnum)
+                .map(methodMap::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
 
-        if (methodEnums.contains(MethodEnum.EDIT)) {
-            this.update().ifPresent(methodSpecs::add);
-        }
-
-        if (methodEnums.contains(MethodEnum.FINDBYID)) {
-            this.findById().ifPresent(methodSpecs::add);
-        }
-
-        if (methodEnums.contains(MethodEnum.VOLIST)) {
-            this.voList().ifPresent(methodSpecs::add);
-        }
-
-        if (methodEnums.contains(MethodEnum.FINDBYPAGE)) {
-            this.findByPage().ifPresent(methodSpecs::add);
-        }
-
-
-        return methodSpecs;
     }
 
 }

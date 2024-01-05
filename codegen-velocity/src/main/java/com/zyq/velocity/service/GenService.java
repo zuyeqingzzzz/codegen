@@ -40,6 +40,14 @@ public class GenService {
         queryDataSourceMap.put(DbType.Oracle, new QueryOracle());
     }
 
+
+    public void generatorCode(List<String> tableNames, GenContext genContext, DbType dbType) {
+        tableNames.forEach(table -> {
+            this.generatorCode(table, genContext, dbType);
+        });
+
+    }
+
     /**
      * 生成代码（自定义路径）
      *
@@ -52,14 +60,13 @@ public class GenService {
         queryDataSource.iniDateSource(url, userName, passWord);
         GenTable table = queryDataSource.queryDb(tableName);
 
-        fillGenTable(table, genContext);
-
         VelocityInitializer.initVelocity();
 
         VelocityContext context = VelocityUtils.prepareContext(table,genContext);
 
         // 获取模板列表
         List<String> templates = VelocityUtils.getTemplateList();
+        System.out.println("表名: " + tableName);
         for (String template : templates)
         {
             if (!StringUtils.containsAny(template, "sql.vm", "api.js.vm", "index.vue.vm", "index-tree.vue.vm"))
@@ -82,17 +89,6 @@ public class GenService {
         }
     }
 
-    private void fillGenTable(GenTable table, GenContext context) {
-
-        table.setClassName(StringUtils.convertToCamelCase(table.getTableName()));
-
-        table.setFunctionName(table.getTableComment());
-        table.setEntityPkName(context.getEntityPkName());
-        table.setMapperPkName(context.getMapperPkName());
-        table.setXmlPkName(context.getXmlPkName());
-    }
-
-
     /**
      * 获取代码生成地址
      *
@@ -102,16 +98,20 @@ public class GenService {
      */
     public static String getGenPath(GenTable table, String template, GenContext genContext)
     {
+        String path;
         if (template.contains("model.java.vm")) {
-          return VelocityUtils.getFileName(template, table,genContext);
+          return VelocityUtils.getFileName(template, table,genContext)
+                  .replace("/", File.separator).replace("\\", File.separator);
         }
 
         String genPath = genContext.getProjectPath();
         if (StringUtils.equals(genPath, "/"))
         {
-            return genPath + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table,genContext);
+            path = genPath + File.separator + "src" + File.separator + VelocityUtils.getFileName(template, table,genContext);
         }
-        return genPath + File.separator + VelocityUtils.getFileName(template, table,genContext);
+        path = genPath + File.separator + VelocityUtils.getFileName(template, table,genContext);
+
+        return path.replace("/", File.separator).replace("\\", File.separator);
     }
 
 

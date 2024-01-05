@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.*;
 import com.zyq.apt.processor.BaseCodeGenProcessor;
 import com.zyq.common.constant.MethodEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import com.zyq.apt.annotation.DtoItem;
 import com.zyq.apt.annotation.GenDto;
@@ -14,6 +15,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,12 +36,22 @@ public class GenDtoProcessor extends BaseCodeGenProcessor {
     @Override
     public void genClass(TypeElement typeElement, RoundEnvironment roundEnvironment) {
 
-        TypeSpec.Builder builder = TypeSpec.classBuilder(context.getDtoClassName()).addAnnotation(Data.class);
+        TypeSpec.Builder builder = TypeSpec.classBuilder(context.getDtoClassName()).addAnnotation(Data.class)
+                .addModifiers(Modifier.PUBLIC);
 
         Set<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(DtoItem.class)));
+        Map<VariableElement, TypeName> dtoConvertMap = context.getDtoConvertMap();
+
         fields.forEach(field -> {
-            FieldSpec.Builder fieldBuilder = FieldSpec.builder(TypeName.get(field.asType()),
+            FieldSpec.Builder fieldBuilder = FieldSpec.builder(dtoConvertMap.get(field),
                     field.getSimpleName().toString(), Modifier.PRIVATE);
+
+            String fieldComment = context.getFieldComment().get(field);
+            String comment = fieldComment == null ? "" : fieldComment;
+
+            fieldBuilder.addAnnotation(AnnotationSpec.builder(ApiModelProperty.class)
+                    .addMember("value", "$S", comment).build());
+
             builder.addField(fieldBuilder.build());
         });
 
@@ -48,7 +60,7 @@ public class GenDtoProcessor extends BaseCodeGenProcessor {
         }
 
         GenDto ann = typeElement.getAnnotation(GenDto.class);
-        genJavaFile(ann.pkName(), ann.pkName(), builder.build(), ann.sourcePath(), ann.overrideSource());
+        genJavaFile(ann.projectPath(), ann.pkName(), builder.build(), ann.sourcePath(), ann.overrideSource());
     }
 
 

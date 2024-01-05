@@ -62,13 +62,6 @@
         <module name="codegen-model" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="codegen" target="1.8" />
-      <module name="codegen-apt" target="1.8" />
-      <module name="codegen-common" target="1.8" />
-      <module name="codegen-model" target="1.8" />
-      <module name="codegen-velocity" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zyq.apt.annotation.GenServiceImpl;
 import com.zyq.apt.spi.CodeGenProcessor;
+
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -31,17 +32,17 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
         mapperName = StringUtils.camel(context.getMapperClassName());
         TypeSpec typeSpec = TypeSpec.classBuilder(context.getImplClassName())
                 .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(ClassName.get(context.getServicePackageName(),context.getServiceClassName()))
+                .addSuperinterface(ClassName.get(context.getServicePackageName(), context.getServiceClassName()))
                 .addAnnotation(ClassName.get("org.springframework.stereotype", "Service"))
                 .addAnnotation(Slf4j.class)
-                .addField(FieldSpec.builder(ClassName.get(context.getMapperPackageName(), context.getMapperClassName()), "mapperName")
+                .addField(FieldSpec.builder(ClassName.get(context.getMapperPackageName(), context.getMapperClassName()), mapperName)
                         .addModifiers(Modifier.PRIVATE)
                         .addAnnotation(Autowired.class).build())
                 .addMethods(createCommonMethod())
                 .build();
 
         GenServiceImpl ann = typeElement.getAnnotation(GenServiceImpl.class);
-        genJavaFile(ann.pkName(), ann.pkName(), typeSpec, ann.sourcePath(), ann.overrideSource());
+        genJavaFile(ann.projectPath(), ann.pkName(), typeSpec, ann.sourcePath(), ann.overrideSource());
     }
 
     @Override
@@ -62,7 +63,7 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "param")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .returns(ParameterizedTypeName.get(ClassName.get(List.class),ClassName.get(entityPackageName, entityClassName)));
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(entityPackageName, entityClassName)));
 
         String listName = "select" + context.getEntityClassName() + "List";
         CodeBlock codeBlock = CodeBlock.of("return $N.$N(param);", mapperName, listName);
@@ -74,15 +75,10 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
     @Override
     public Optional<MethodSpec> insert() {
 
-
-        String dtoPackageName = context.getDtoPackageName();
-        String dtoClassName = context.getDtoClassName();
-        String voPackageName = context.getVoPackageName();
-        String voClassName = context.getVoClassName();
         String entityPackageName = context.getEntityPackageName();
         String entityClassName = context.getEntityClassName();
 
-        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+        if (StringUtils.containsNull(entityPackageName, entityClassName, mapperName)) {
             return Optional.empty();
         }
         MethodSpec.Builder build = MethodSpec.methodBuilder("insert")
@@ -101,14 +97,10 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
     @Override
     public Optional<MethodSpec> update() {
 
-        String dtoPackageName = context.getDtoPackageName();
-        String dtoClassName = context.getDtoClassName();
-        String voPackageName = context.getVoPackageName();
-        String voClassName = context.getVoClassName();
         String entityPackageName = context.getEntityPackageName();
         String entityClassName = context.getEntityClassName();
 
-        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+        if (StringUtils.containsNull(entityPackageName, entityClassName, mapperName)) {
             return Optional.empty();
         }
 
@@ -129,12 +121,7 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
     @Override
     public Optional<MethodSpec> delete() {
 
-        String dtoPackageName = context.getDtoPackageName();
-        String dtoClassName = context.getDtoClassName();
-        String voPackageName = context.getVoPackageName();
-        String voClassName = context.getVoClassName();
-
-        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+        if (StringUtils.containsNull(context.getEntityClassName(), context.getEntityPackageName(), mapperName)) {
             return Optional.empty();
         }
         MethodSpec.Builder build = MethodSpec.methodBuilder("delete")
@@ -153,14 +140,10 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
     @Override
     public Optional<MethodSpec> findById() {
 
-        String dtoPackageName = context.getDtoPackageName();
-        String dtoClassName = context.getDtoClassName();
-        String voPackageName = context.getVoPackageName();
-        String voClassName = context.getVoClassName();
         String entityPackageName = context.getEntityPackageName();
         String entityClassName = context.getEntityClassName();
 
-        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+        if (StringUtils.containsNull(entityPackageName, entityClassName, mapperName)) {
             return Optional.empty();
         }
         MethodSpec.Builder build = MethodSpec.methodBuilder("findById")
@@ -169,7 +152,8 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
                 .addAnnotation(Override.class)
                 .returns(ClassName.get(entityPackageName, entityClassName));
 
-        CodeBlock codeBlock = CodeBlock.of("return $N.findById(id);", mapperName);
+        String methodName = "select" + entityClassName + "By" + context.getKey();
+        CodeBlock codeBlock = CodeBlock.of("return $N.$N(id);", mapperName, methodName);
         build.addCode(codeBlock);
 
         return Optional.of(build.build());
@@ -183,16 +167,16 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
         String voPackageName = context.getVoPackageName();
         String voClassName = context.getVoClassName();
 
-        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName, mapperName)) {
             return Optional.empty();
         }
         MethodSpec.Builder build = MethodSpec.methodBuilder("findByPage")
                 .addParameter(ClassName.get(dtoPackageName, dtoClassName), "dto")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .returns(ParameterizedTypeName.get(ClassName.get(List.class),ClassName.get(voPackageName, voClassName)));
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(voPackageName, voClassName)));
 
-        CodeBlock codeBlock = CodeBlock.of("return $N.select(dto);", mapperName);
+        CodeBlock codeBlock = CodeBlock.of("return $N.selectVoList(dto);", mapperName);
         build.addCode(codeBlock);
 
         return Optional.of(build.build());
@@ -200,7 +184,25 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
 
     @Override
     public Optional<MethodSpec> voList() {
-        return Optional.empty();
+
+        String dtoPackageName = context.getDtoPackageName();
+        String dtoClassName = context.getDtoClassName();
+        String voPackageName = context.getVoPackageName();
+        String voClassName = context.getVoClassName();
+
+        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName, mapperName)) {
+            return Optional.empty();
+        }
+        MethodSpec.Builder build = MethodSpec.methodBuilder("voList")
+                .addParameter(ClassName.get(dtoPackageName, dtoClassName), "dto")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(voPackageName, voClassName)));
+
+        CodeBlock codeBlock = CodeBlock.of("return $N.selectVoList(dto);", mapperName);
+        build.addCode(codeBlock);
+
+        return Optional.of(build.build());
     }
 
 

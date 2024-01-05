@@ -42,7 +42,7 @@ public class GenConstants
 
     /** 数据库数字类型 */
     public static final String[] COLUMNTYPE_NUMBER = { "tinyint", "smallint", "mediumint", "int", "number", "integer",
-            "bit", "bigint", "float", "double", "decimal", "int4", "int8"};
+            "bit", "bigint", "float", "double", "decimal", "int4", "int8","numeric"};
 
     /** 页面不需要编辑字段 */
     public static final String[] COLUMNNAME_NOT_EDIT = { "id", "create_by", "create_time", "del_flag" };

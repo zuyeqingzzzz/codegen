@@ -24,6 +24,11 @@ public final class StringUtils extends org.apache.commons.lang3.StringUtils{
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, source);
     }
 
+    // 首字母转大写
+    public static String upper(String source) {
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, source);
+    }
+
 
 
     public static boolean containsNull(String... list) {

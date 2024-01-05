@@ -7,6 +7,7 @@ import com.zyq.apt.processor.MethodCreator;
 import com.zyq.apt.annotation.GenService;
 import com.zyq.apt.spi.CodeGenProcessor;
 import com.zyq.common.utils.StringUtils;
+
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -37,7 +38,7 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
                 .build();
 
         GenService ann = typeElement.getAnnotation(GenService.class);
-        genJavaFile(ann.pkName(), ann.pkName(), typeSpec, ann.sourcePath(), ann.overrideSource());
+        genJavaFile(ann.projectPath(), ann.pkName(), typeSpec, ann.sourcePath(), ann.overrideSource());
 
     }
 
@@ -56,8 +57,9 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
         }
         MethodSpec build = MethodSpec.methodBuilder("list")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("list")
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "param")
-                .returns(ParameterizedTypeName.get(ClassName.get(List.class),ClassName.get(entityPackageName, entityClassName)))
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(entityPackageName, entityClassName)))
                 .build();
         return Optional.of(build);
     }
@@ -73,6 +75,7 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
 
         MethodSpec build = MethodSpec.methodBuilder("insert")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("insert")
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "record")
                 .returns(TypeName.INT).build();
 
@@ -90,6 +93,7 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
 
         MethodSpec build = MethodSpec.methodBuilder("update")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("update")
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "record")
                 .returns(TypeName.INT).build();
 
@@ -101,6 +105,7 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
 
         MethodSpec build = MethodSpec.methodBuilder("delete")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("delete")
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(TypeName.INT).build();
 
@@ -116,8 +121,9 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
             return Optional.empty();
         }
 
-        MethodSpec build = MethodSpec.methodBuilder("update")
+        MethodSpec build = MethodSpec.methodBuilder("findById")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("findById")
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(ClassName.get(entityPackageName, entityClassName)).build();
 
@@ -136,15 +142,30 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
         }
         MethodSpec build = MethodSpec.methodBuilder("findByPage")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("findByPage")
                 .addParameter(ClassName.get(dtoPackageName, dtoClassName), "dto")
-                .returns(ClassName.get(voPackageName, voClassName))
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(voPackageName, voClassName)))
                 .build();
         return Optional.of(build);
     }
 
     @Override
     public Optional<MethodSpec> voList() {
-        return Optional.empty();
+        String dtoPackageName = context.getDtoPackageName();
+        String dtoClassName = context.getDtoClassName();
+        String voPackageName = context.getVoPackageName();
+        String voClassName = context.getVoClassName();
+
+        if (StringUtils.containsNull(dtoPackageName, dtoClassName, voPackageName, voClassName)) {
+            return Optional.empty();
+        }
+        MethodSpec build = MethodSpec.methodBuilder("voList")
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addJavadoc("voList")
+                .addParameter(ClassName.get(dtoPackageName, dtoClassName), "dto")
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(voPackageName, voClassName)))
+                .build();
+        return Optional.of(build);
     }
 
 }

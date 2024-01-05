@@ -8,9 +8,11 @@ import com.zyq.apt.spi.CodeGenProcessor;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import com.zyq.apt.annotation.GenVo;
+
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,13 +29,14 @@ public class GenVoProcessor extends BaseCodeGenProcessor {
     @Override
     public void genClass(TypeElement typeElement, RoundEnvironment roundEnvironment) {
 
-        TypeSpec.Builder builder = TypeSpec.classBuilder(context.getVoClassName()).addAnnotation(Data.class);
+        TypeSpec.Builder builder = TypeSpec.classBuilder(context.getVoClassName()).addAnnotation(Data.class)
+                .addModifiers(Modifier.PUBLIC);
 
         Set<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(VoItem.class)));
+        Map<VariableElement, TypeName> voConvertMap = context.getVoConvertMap();
 
         fields.forEach(field -> {
-
-            FieldSpec.Builder fieldBuilder = FieldSpec.builder(TypeName.get(field.asType()),
+            FieldSpec.Builder fieldBuilder = FieldSpec.builder(voConvertMap.get(field),
                     field.getSimpleName().toString(), Modifier.PRIVATE);
 
             String fieldComment = context.getFieldComment().get(field);
@@ -53,7 +56,7 @@ public class GenVoProcessor extends BaseCodeGenProcessor {
         });
 
         GenVo ann = typeElement.getAnnotation(GenVo.class);
-        genJavaFile(ann.pkName(), ann.pkName(), builder.build(), ann.sourcePath(), ann.overrideSource());
+        genJavaFile(ann.projectPath(), ann.pkName(), builder.build(), ann.sourcePath(), ann.overrideSource());
     }
 
     @Override

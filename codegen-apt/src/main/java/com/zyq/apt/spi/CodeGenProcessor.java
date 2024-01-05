@@ -15,7 +15,7 @@ public interface CodeGenProcessor {
 
 
     /**
-     * 生产代码的逻辑
+     * 生成代码的逻辑
      */
     void generate(TypeElement typeElement, RoundEnvironment roundEnvironment);
 

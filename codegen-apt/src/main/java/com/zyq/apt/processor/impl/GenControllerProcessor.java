@@ -14,15 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zyq.apt.annotation.GenController;
+
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author YiQing
@@ -48,7 +46,8 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
     private ClassName vo;
     private ClassName entity;
     private ClassName excelUtil;
-    private ClassName ajaxResult;
+    private ClassName returnInfo;
+    private ClassName tableInfo;
 
     private boolean export;
 
@@ -113,11 +112,15 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         entityClassName = context.getEntityClassName();
         export = context.isExport();
 
-        dto = ClassName.get(dtoPackageName, dtoClassName);
-        vo = ClassName.get(voPackageName, voClassName);
+        if (!StringUtils.containsNull(voPackageName, voClassName,dtoPackageName,dtoClassName)) {
+            dto = ClassName.get(dtoPackageName, dtoClassName);
+            vo = ClassName.get(voPackageName, voClassName);
+        }
+
         entity = ClassName.get(entityPackageName, entityClassName);
         excelUtil = ClassName.get("com.zjhc.common.utils.poi", "ExcelUtil");
-        ajaxResult = ClassName.get("com.zjhc.common.core.domain", "AjaxResult");
+        returnInfo = ClassName.get("com.zjhc.core.dto.response", "ReturnInfo");
+        tableInfo = ClassName.get("com.zjhc.common.core.page", "TableDataInfo");
 
 
     }
@@ -134,14 +137,14 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("list")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/list").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
+                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/list").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
                 .addParameter(ParameterSpec.builder(entity, "param").build())
-                .returns(ajaxResult);
+                .returns(ParameterizedTypeName.get(returnInfo, ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(entityPackageName, entityClassName))));
 
         CodeBlock context = CodeBlock.builder()
                 .add("$T<$T> list = $N.list($N);\n", List.class, entity, serviceName, "param")
-                .add("return AjaxResult.success(list);")
+                .add("return ReturnInfo.success(list);")
                 .build();
         builder.addCode(context);
         return Optional.of(builder.build());
@@ -155,12 +158,13 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("add")
-                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S","/add").build())
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/add").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "新增" + tableName).build())
                 .addParameter(ParameterSpec.builder(entity, "record").build())
-                .returns(ajaxResult);
+                .returns(ParameterizedTypeName.get(returnInfo, TypeName.INT.box()));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return AjaxResult.success($N.insert(record));\n", serviceName)
+                .add("return ReturnInfo.success($N.insert(record));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -174,13 +178,13 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("update")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/update").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/update").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "更新" + tableName).build())
                 .addParameter(ParameterSpec.builder(entity, "record").build())
-                .returns(ajaxResult);
+                .returns(ParameterizedTypeName.get(returnInfo, TypeName.INT.box()));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return AjaxResult.success($N.update(record));\n", serviceName)
+                .add("return ReturnInfo.success($N.update(record));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -194,13 +198,13 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("delete")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/delete").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
-                .addParameter(TypeName.LONG, "id")
-                .returns(ajaxResult);
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/delete").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "删除" + tableName).build())
+                .addParameter(TypeName.LONG.box(), "id")
+                .returns(ParameterizedTypeName.get(returnInfo, TypeName.INT.box()));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return AjaxResult.success($N.delete(id));\n", serviceName)
+                .add("return ReturnInfo.success($N.delete(id));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -214,13 +218,13 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("findById")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/findById").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
-                .addParameter(TypeName.LONG, "id")
-                .returns(ajaxResult);
+                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/findById").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "详情").build())
+                .addParameter(TypeName.LONG.box(), "id")
+                .returns(ParameterizedTypeName.get(returnInfo, ClassName.get(entityPackageName, entityClassName)));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return AjaxResult.success($N.findById(id));\n", serviceName)
+                .add("return ReturnInfo.success($N.findById(id));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -228,36 +232,38 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
 
     @Override
     public Optional<MethodSpec> findByPage() {
-        if (StringUtils.containsNull(tableName, dtoPackageName, dtoClassName, voClassName, serviceName)) {
+        if (StringUtils.containsNull(tableName, dtoPackageName, voPackageName, serviceName)) {
             return Optional.empty();
         }
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("findByPage")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/findByPage").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
-                .addParameter(ParameterSpec.builder(dto, "dto").build())
-                .returns(ajaxResult);
 
+        boolean isExport = context.isExport();
+        TypeName returns = ParameterizedTypeName.get(returnInfo, tableInfo);
+        if (isExport) {
+            returns = ParameterizedTypeName.get(returnInfo, ParameterizedTypeName.get(Map.class, String.class, Object.class));
+        }
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("findByPage")
+                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/findByPage").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
+                .addParameter(ParameterSpec.builder(dto, "dto").build())
+                .returns(returns);
 
 
         CodeBlock.Builder excelCode = CodeBlock.builder()
-                .add("List<$T> list = $N.list($N);\n", vo, serviceName, "dto")
-                .add("Object[] fieldAndRemarks = $N.obtainFieldAndExcelAnnRemark($N.class);\n", excelUtil, vo)
-                .add("TableDataInfo dataTable = getDataTable(list);\n")
-                .add("Map<String, Object> map = new HashMap<>();\n")
+                .add("startPage();\n")
+                .add("List<$T> list = $N.findByPage($N);\n", vo, serviceName, "dto")
+                .add("Object[] fieldAndRemarks = $T.obtainFieldAndExcelAnnRemark($T.class);\n", excelUtil, vo)
+                .add("$T dataTable = getDataTable(list);\n", tableInfo)
+                .add("$T<String, Object> map = new $T<>();\n", Map.class, HashMap.class)
                 .add("map.put(\"data\",dataTable);\n")
                 .add("map.put(\"header\",fieldAndRemarks[0]);\n")
                 .add("map.put(\"key\",fieldAndRemarks[1]);\n")
-                .add("return AjaxResult.success(map);")
-                ;
+                .add("return ReturnInfo.success(map);");
 
         CodeBlock.Builder normalCode = CodeBlock.builder()
-                .add("List<$T> list = $N.list($N);\n", vo, serviceName, "dto")
-                .add("Object[] fieldAndRemarks = $N.obtainFieldAndExcelAnnRemark($N.class);\n", excelUtil, vo)
-                .add("TableDataInfo dataTable = getDataTable(list);\n")
-                .add("Map<String, Object> map = new HashMap<>();\n")
-                .add("map.put(\"data\",dataTable);\n")
-                .add("return AjaxResult.success(map);")
-                ;
+                .add("startPage();\n")
+                .add("List<$T> list = $N.findByPage($N);\n", vo, serviceName, "dto")
+                .add("$T dataTable = getDataTable(list);\n", tableInfo)
+                .add("return ReturnInfo.success(dataTable);");
 
         builder.addCode(context.isExport() ? excelCode.build() : normalCode.build());
         return Optional.of(builder.build());
@@ -265,27 +271,40 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
 
     @Override
     public Optional<MethodSpec> voList() {
-
-        if (StringUtils.containsNull(tableName, dtoPackageName, dtoClassName, voClassName, serviceName)) {
+        if (StringUtils.containsNull(tableName, dtoPackageName, voPackageName, serviceName)) {
             return Optional.empty();
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("volist")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S","/list").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
+        boolean isExport = context.isExport();
+        TypeName returns = ParameterizedTypeName.get(returnInfo, tableInfo);
+        if (isExport) {
+            returns = ParameterizedTypeName.get(returnInfo, ParameterizedTypeName.get(Map.class, String.class, Object.class));
+        }
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("voList")
+                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/voList").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
                 .addParameter(ParameterSpec.builder(dto, "dto").build())
-                .returns(ajaxResult);
+                .returns(returns);
 
-        CodeBlock codeBlock = CodeBlock.builder()
-                .add("List<$T> list = $N.list($N);\n", voClassName, serviceName, "dto")
-                .add("Object[] fieldAndRemarks = $N.obtainFieldAndExcelAnnRemark($N.class);\n", excelUtil, voClassName)
-                .add("Map<String, Object> map = new HashMap<>();\n")
+
+        CodeBlock.Builder excelCode = CodeBlock.builder()
+                .add("startPage();\n")
+                .add("$T<$T> list = $N.voList($N);\n", List.class,vo, serviceName, "dto")
+                .add("Object[] fieldAndRemarks = $T.obtainFieldAndExcelAnnRemark($T.class);\n", excelUtil, vo)
+                .add("$T dataTable = getDataTable(list);\n", tableInfo)
+                .add("$T<String, Object> map = new $T<>();\n", Map.class, HashMap.class)
                 .add("map.put(\"data\",dataTable);\n")
                 .add("map.put(\"header\",fieldAndRemarks[0]);\n")
                 .add("map.put(\"key\",fieldAndRemarks[1]);\n")
-                .add("return AjaxResult.success(map);")
-                .build();
-        builder.addCode(codeBlock);
+                .add("return ReturnInfo.success(map);");
+
+        CodeBlock.Builder normalCode = CodeBlock.builder()
+                .add("startPage();\n")
+                .add("$T<$T> list = $N.voList($N);\n", List.class, vo, serviceName, "dto")
+                .add("$T dataTable = getDataTable(list);\n", tableInfo)
+                .add("return ReturnInfo.success(dataTable);");
+
+        builder.addCode(context.isExport() ? excelCode.build() : normalCode.build());
         return Optional.of(builder.build());
     }
 
@@ -296,17 +315,17 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("export")
-                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S","/export").build())
-//                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName).build())
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/export").build())
+                .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "导出" + tableName).build())
                 .addParameter(ParameterSpec.builder(dto, "dto").build())
-                .returns(ajaxResult);
+                .returns(ParameterizedTypeName.get(returnInfo, TypeName.OBJECT));
 
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("List<$T> list = $N.list($N);\n", vo, serviceName, "dto")
-                .add("$T<$T> util = new $T<>($T.class);\n", excelUtil, vo, excelUtil, vo)
-                .add("util.exportExcel(response, list,\"数据\");\n")
-                .add("return AjaxResult.success();")
+                .add("$T<$T> list = $N.voList($N);\n", List.class,vo, serviceName, "dto")
+                .add("$T<$T> excelUtil = new $T<>($T.class);\n", excelUtil, vo, excelUtil, vo)
+                .add("excelUtil.exportExcel(response, list,$S);\n", tableName)
+                .add("return ReturnInfo.success();")
                 .build();
 
         builder.addCode(codeBlock);

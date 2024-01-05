@@ -34,12 +34,13 @@ public class VelocityUtils
     {
 
         String packageName = genTable.getPackageName();
-        String functionName = genTable.getFunctionName();
+        String functionName = genTable.getTableComment();
+        genTable.setClassName(StringUtils.convertToCamelCase(genTable.getTableName()));
 
         VelocityContext velocityContext = new VelocityContext();
         velocityContext.put("tableName", genTable.getTableName());
         velocityContext.put("functionName", StringUtils.isNotEmpty(functionName) ? functionName : "【请填写功能名称】");
-        velocityContext.put("ClassName", genTable.getClassName());
+        velocityContext.put("ClassName", StringUtils.convertToCamelCase(genTable.getTableName()));
         velocityContext.put("className", StringUtils.uncapitalize(genTable.getClassName()));
         velocityContext.put("moduleName", genTable.getModuleName());
         velocityContext.put("entityPkName", genContext.getEntityPkName());
@@ -116,7 +117,7 @@ public class VelocityUtils
         {
             // model 直接生成到codegen-model里面
             String userDir = System.getProperty("user.dir");
-            String modelPath = userDir + "\\codegen-model\\src\\main\\java\\com\\zyq\\model\\";
+            String modelPath = userDir + "\\codegen-model\\src\\main\\java\\com\\zyq\\model";
             fileName = MessageFormat.format("{0}/{1}.java", modelPath, className);
         }
         else if (template.contains("mapper.java.vm"))
@@ -199,8 +200,9 @@ public class VelocityUtils
             else if (str != null && str.length == 1 && Integer.parseInt(str[0]) <= 10)
             {
                 column.setJavaType(GenConstants.TYPE_INTEGER);
-            }
-            // 长整形
+            } else if (dataType.equals("numeric")) {
+                column.setJavaType(GenConstants.TYPE_BIGDECIMAL);
+            } // 长整形
             else
             {
                 column.setJavaType(GenConstants.TYPE_LONG);

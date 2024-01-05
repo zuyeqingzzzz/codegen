@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * @author YiQing
  */
 @Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Documented
 public @interface GenVo {
 

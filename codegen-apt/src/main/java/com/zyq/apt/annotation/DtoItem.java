@@ -1,14 +1,16 @@
 package com.zyq.apt.annotation;
 
+import com.zyq.apt.constant.ConvertEnum;
+
 import java.lang.annotation.*;
 
 /**
  * @author YiQing
  */
 @Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Documented
 public @interface DtoItem {
 
-    Class<?> converter() default String.class;
+    ConvertEnum converter() default ConvertEnum.DEFAULT;
 }

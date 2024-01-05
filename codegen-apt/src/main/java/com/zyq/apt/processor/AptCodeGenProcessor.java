@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import com.zyq.apt.registry.CodeGenProcessorRegistry;
 import com.zyq.apt.holder.ProcessingEnvHolder;
 import com.zyq.apt.spi.CodeGenProcessor;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
@@ -37,7 +38,7 @@ public class AptCodeGenProcessor extends AbstractProcessor {
                 }
             }
         });
-        ProcessingEnvHolder.getHolder().getMessager().printMessage(Diagnostic.Kind.NOTE,  "代码生成完毕");
+        ProcessingEnvHolder.getHolder().getMessager().printMessage(Diagnostic.Kind.NOTE, "代码生成完毕");
         // 设置该次处理不是终止操作
         return false;
     }

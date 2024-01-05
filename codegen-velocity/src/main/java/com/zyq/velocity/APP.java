@@ -14,6 +14,6 @@ public class APP {
         context.setEntityPkName("com.zjhc.platform.gkdomain.entity");
 
         GenService service = new GenService();
-        service.generatorCode("std_manage_post", context, DbType.PgSQL);
+        service.generatorCode("std_integral_target_week", context, DbType.PgSQL);
     }
 }

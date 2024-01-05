@@ -1,7 +1,5 @@
 package com.zyq.common.constant;
 
-import java.util.Arrays;
-
 /**
  * @author YiQing
  */
@@ -13,18 +11,11 @@ public enum MethodEnum {
     INSERT,
     EDIT,
     DELETE,
-    INFO,
     LIST,
     VOLIST,
     FINDBYID,
-    EXPORT,
     FINDBYPAGE,
+    NONE,
     ;
-
-
-
-    public static boolean hasMethod(MethodEnum target, MethodEnum[] source) {
-        return Arrays.asList(source).contains(target);
-    }
 
 }
