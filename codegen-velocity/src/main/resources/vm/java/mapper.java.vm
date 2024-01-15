@@ -1,16 +1,29 @@
 package ${mapperPkName};
+    #set($dateCd = false)
+    #set($StaType = false)
+#foreach($column in $columns)
+    #if($column.javaField == 'dateCd')
+        #set($dateCd = true)
+    #end
+    #if($column.javaField == 'staType')
+        #set($StaType = true)
+    #end
+#end
 
 import java.util.List;
 import ${entityPkName}.${ClassName};
+#if($StaType)
+import org.apache.ibatis.annotations.Param;
+#end
 
 /**
  * ${functionName}
  */
-public interface ${ClassName}Mapper 
+public interface ${ClassName}Mapper
 {
     /**
      * 查询${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return ${functionName}
      */
@@ -18,7 +31,7 @@ public interface ${ClassName}Mapper
 
     /**
      * 查询${functionName}列表
-     * 
+     *
      * @param ${className} ${functionName}
      * @return ${functionName}集合
      */
@@ -26,7 +39,7 @@ public interface ${ClassName}Mapper
 
     /**
      * 新增${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 成功数
      */
@@ -42,7 +55,7 @@ public interface ${ClassName}Mapper
 
     /**
      * 修改${functionName}
-     * 
+     *
      * @param ${className} ${functionName}
      * @return 成功数
      */
@@ -50,7 +63,7 @@ public interface ${ClassName}Mapper
 
     /**
      * 删除${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField} ${functionName}主键
      * @return 成功数
      */
@@ -58,10 +71,31 @@ public interface ${ClassName}Mapper
 
     /**
      * 批量删除${functionName}
-     * 
+     *
      * @param ${pkColumn.javaField}s 需要删除的数据主键集合
      * @return 成功数
      */
     int delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaType}[] ${pkColumn.javaField}s);
+
+    #if($dateCd)
+        #if($StaType)
+    /**
+     * 根据日期和统计类型删除${functionName}
+     *
+     * @param dateCd 日期
+     * @param staType 统计类型
+     * @return 成功数
+     */
+    int deleteByDateCdAndStaType(@Param("dateCd")String dateCd, @Param("staType")String staType);
+        #else
+    /**
+     * 根据日期删除${functionName}
+     *
+     * @param dateCd 日期
+     * @return 成功数
+     */
+    int deleteByDateCd(String dateCd);
+        #end
+    #end
 
 }

@@ -6,11 +6,9 @@ import ${import};
 import java.io.Serializable;
 import lombok.Data;
 
-
 /**
  * ${functionName} ${tableName}
  */
-
 @Data
 public class ${ClassName} implements Serializable
 {
@@ -27,7 +25,6 @@ public class ${ClassName} implements Serializable
 #end
 #end
     private $column.javaType $column.javaField;
-
 
 #end
 

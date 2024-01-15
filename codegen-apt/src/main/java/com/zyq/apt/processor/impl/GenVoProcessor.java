@@ -1,5 +1,6 @@
 package com.zyq.apt.processor.impl;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.*;
 import com.zyq.apt.annotation.VoItem;
@@ -12,6 +13,7 @@ import com.zyq.apt.annotation.GenVo;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -51,6 +53,12 @@ public class GenVoProcessor extends BaseCodeGenProcessor {
 
             fieldBuilder.addAnnotation(AnnotationSpec.builder(ApiModelProperty.class)
                     .addMember("value", "$S", comment).build());
+            if (voConvertMap.get(field).equals(TypeName.get(Date.class))) {
+                fieldBuilder.addAnnotation(AnnotationSpec.builder(JsonFormat.class)
+                        .addMember("pattern", "$S", "yyyy-MM-dd HH:mm:ss")
+                        .addMember("timezone", "$S", "GMT+8")
+                        .build());
+            }
 
             builder.addField(fieldBuilder.build());
         });

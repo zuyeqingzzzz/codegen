@@ -1,19 +1,24 @@
 package com.zyq.velocity;
 
+import com.zyq.common.constant.PackageConstant;
 import com.zyq.velocity.common.DbType;
 import com.zyq.velocity.domain.GenContext;
 import com.zyq.velocity.service.GenService;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class APP {
     public static void main(String[] args) {
 
         GenContext context = new GenContext();
-        context.setProjectPath("D:\\work\\project\\tzcloud\\stdwk-tz\\std-service\\std-platform-service");
+        context.setProjectPath(PackageConstant.SYSTEM_SERVICE_PATH);
         context.setXmlPkName("mybatis.gkmapper");
         context.setMapperPkName("com.zjhc.platform.gkmapper");
         context.setEntityPkName("com.zjhc.platform.gkdomain.entity");
 
         GenService service = new GenService();
-        service.generatorCode("std_integral_target_week", context, DbType.PgSQL);
+        List<String> tableName = Arrays.asList("sta_user_yxkc_target","sta_area_yxkc_target");
+        service.generatorCode(tableName, context, DbType.PgSQL);
     }
 }

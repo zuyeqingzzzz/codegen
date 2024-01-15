@@ -13,8 +13,8 @@ import lombok.Data;
  * ${functionName}
  */
 @Data
-@GenConfig(entityPkName = "${entityPkName}", mapperPkName = "${mapperPkName}",
-methodName = {MethodEnum.LIST, MethodEnum.INSERT, MethodEnum.DELETE, MethodEnum.EDIT}
+@GenConfig(entityPkName = "${entityPkName}", mapperPkName = "${mapperPkName}"
+, methodName = {MethodEnum.LIST, MethodEnum.INSERT, MethodEnum.DELETE, MethodEnum.EDIT}
 )
 @GenVo(pkName = "${voPkName}", projectPath = ${servicePath})
 @GenDto(pkName = "${dtoPkName}", projectPath = ${servicePath})

@@ -1,5 +1,0 @@
-com.zyq.apt.processor.impl.GenControllerProcessor
-com.zyq.apt.processor.impl.GenDtoProcessor
-com.zyq.apt.processor.impl.GenServiceImplProcessor
-com.zyq.apt.processor.impl.GenServiceProcessor
-com.zyq.apt.processor.impl.GenVoProcessor

@@ -107,4 +107,26 @@
         </foreach>
     </delete>
 
+    #set($dateCd = false)
+    #set($StaType = false)
+    #foreach($column in $columns)
+        #if($column.javaField == 'dateCd')
+            #set($dateCd = true)
+        #end
+        #if($column.javaField == 'staType')
+            #set($StaType = true)
+        #end
+    #end
+    #if($dateCd)
+        #if($StaType)
+    <delete id="deleteByDateCdAndStaType">
+        delete from ${tableName} where date_cd = #{dateCd} and staType = #{staType}
+    </delete>
+        #else
+    <delete id="deleteByDateCd">
+        delete from ${tableName} where date_cd = #{dateCd}
+    </delete>
+        #end
+    #end
+
 </mapper>
