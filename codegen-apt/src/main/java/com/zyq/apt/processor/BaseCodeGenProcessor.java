@@ -145,17 +145,17 @@ public abstract class BaseCodeGenProcessor implements CodeGenProcessor {
                 String docComment = elementUtils.getDocComment(fieldElement);
 
                 if (Objects.nonNull(docComment)) {
-                    fieldComment.put(variableElement, StringUtils.cleanFieldComment(docComment));
+                    fieldComment.put(variableElement, docComment.trim());
                 }
 
             }
         }
     }
 
-    protected Set<VariableElement> getFields(TypeElement typeElement, Predicate<VariableElement> predicate) {
+    protected List<VariableElement> getFields(TypeElement typeElement, Predicate<VariableElement> predicate) {
         List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
         List<VariableElement> variableElements = ElementFilter.fieldsIn(enclosedElements);
-        return variableElements.stream().filter(predicate).collect(Collectors.toSet());
+        return variableElements.stream().filter(predicate).distinct().collect(Collectors.toList());
 
     }
 

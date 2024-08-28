@@ -13,10 +13,7 @@ import com.zyq.apt.annotation.GenVo;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author YiQing
@@ -34,7 +31,7 @@ public class GenVoProcessor extends BaseCodeGenProcessor {
         TypeSpec.Builder builder = TypeSpec.classBuilder(context.getVoClassName()).addAnnotation(Data.class)
                 .addModifiers(Modifier.PUBLIC);
 
-        Set<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(VoItem.class)));
+        List<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(VoItem.class)));
         Map<VariableElement, TypeName> voConvertMap = context.getVoConvertMap();
 
         fields.forEach(field -> {
@@ -45,14 +42,23 @@ public class GenVoProcessor extends BaseCodeGenProcessor {
             String comment = fieldComment == null ? "" : fieldComment;
 
             if (context.isExport()) {
-                fieldBuilder.addAnnotation(AnnotationSpec
+
+                AnnotationSpec.Builder excelBuilder = AnnotationSpec
                         .builder(ClassName.get("com.zjhc.common.annotation", "Excel"))
-                        .addMember("name", "$S", comment)
-                        .build());
+                        .addMember("name", "$S", comment);
+
+                if (voConvertMap.get(field).equals(TypeName.get(Date.class))) {
+                    excelBuilder.addMember("dateFormat", "$S", "yyyy-MM-dd HH:mm:ss");
+                }
+                fieldBuilder.addAnnotation(excelBuilder.build());
+
             }
 
-            fieldBuilder.addAnnotation(AnnotationSpec.builder(ApiModelProperty.class)
-                    .addMember("value", "$S", comment).build());
+            if (!context.isExport()) {
+                fieldBuilder.addAnnotation(AnnotationSpec.builder(ApiModelProperty.class)
+                        .addMember("value", "$S", comment).build());
+            }
+
             if (voConvertMap.get(field).equals(TypeName.get(Date.class))) {
                 fieldBuilder.addAnnotation(AnnotationSpec.builder(JsonFormat.class)
                         .addMember("pattern", "$S", "yyyy-MM-dd HH:mm:ss")

@@ -73,9 +73,9 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
             return Optional.empty();
         }
 
-        MethodSpec build = MethodSpec.methodBuilder("insert")
+        MethodSpec build = MethodSpec.methodBuilder("submit")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .addJavadoc("insert")
+                .addJavadoc("submit")
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "record")
                 .returns(TypeName.INT).build();
 
@@ -103,9 +103,9 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
     @Override
     public Optional<MethodSpec> delete() {
 
-        MethodSpec build = MethodSpec.methodBuilder("delete")
+        MethodSpec build = MethodSpec.methodBuilder("remove")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .addJavadoc("delete")
+                .addJavadoc("remove")
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(TypeName.INT).build();
 
@@ -121,9 +121,9 @@ public class GenServiceProcessor extends BaseCodeGenProcessor implements MethodC
             return Optional.empty();
         }
 
-        MethodSpec build = MethodSpec.methodBuilder("findById")
+        MethodSpec build = MethodSpec.methodBuilder("details")
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .addJavadoc("findById")
+                .addJavadoc("details")
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(ClassName.get(entityPackageName, entityClassName)).build();
 

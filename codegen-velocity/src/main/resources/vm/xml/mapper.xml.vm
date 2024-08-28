@@ -120,7 +120,7 @@
     #if($dateCd)
         #if($StaType)
     <delete id="deleteByDateCdAndStaType">
-        delete from ${tableName} where date_cd = #{dateCd} and staType = #{staType}
+        delete from ${tableName} where date_cd = #{dateCd} and sta_type = #{staType}
     </delete>
         #else
     <delete id="deleteByDateCd">

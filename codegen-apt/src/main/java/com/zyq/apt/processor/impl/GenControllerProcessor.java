@@ -137,6 +137,7 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("list")
+                .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/list").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
                 .addParameter(ParameterSpec.builder(entity, "param").build())
@@ -157,14 +158,15 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
             return Optional.empty();
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("add")
-                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/add").build())
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("submit")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/submit").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "新增" + tableName).build())
                 .addParameter(ParameterSpec.builder(entity, "record").build())
                 .returns(ParameterizedTypeName.get(returnInfo, TypeName.INT.box()));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return ReturnInfo.success($N.insert(record));\n", serviceName)
+                .add("return ReturnInfo.success($N.submit(record));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -178,6 +180,7 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("update")
+                .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/update").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "更新" + tableName).build())
                 .addParameter(ParameterSpec.builder(entity, "record").build())
@@ -197,14 +200,16 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
             return Optional.empty();
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("delete")
-                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/delete").build())
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("remove")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/remove").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "删除" + tableName).build())
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(ParameterizedTypeName.get(returnInfo, TypeName.INT.box()));
 
+
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return ReturnInfo.success($N.delete(id));\n", serviceName)
+                .add("return ReturnInfo.success($N.remove(id));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -217,14 +222,15 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
             return Optional.empty();
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("findById")
-                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/findById").build())
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("details")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/details").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "详情").build())
                 .addParameter(TypeName.LONG.box(), "id")
                 .returns(ParameterizedTypeName.get(returnInfo, ClassName.get(entityPackageName, entityClassName)));
 
         CodeBlock codeBlock = CodeBlock.builder()
-                .add("return ReturnInfo.success($N.findById(id));\n", serviceName)
+                .add("return ReturnInfo.success($N.details(id));\n", serviceName)
                 .build();
         builder.addCode(codeBlock);
         return Optional.of(builder.build());
@@ -242,6 +248,7 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
             returns = ParameterizedTypeName.get(returnInfo, ParameterizedTypeName.get(Map.class, String.class, Object.class));
         }
         MethodSpec.Builder builder = MethodSpec.methodBuilder("findByPage")
+                .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/findByPage").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
                 .addParameter(ParameterSpec.builder(dto, "dto").build())
@@ -281,6 +288,7 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
             returns = ParameterizedTypeName.get(returnInfo, ParameterizedTypeName.get(Map.class, String.class, Object.class));
         }
         MethodSpec.Builder builder = MethodSpec.methodBuilder("voList")
+                .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", "/voList").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", tableName + "列表").build())
                 .addParameter(ParameterSpec.builder(dto, "dto").build())
@@ -315,17 +323,17 @@ public class GenControllerProcessor extends BaseCodeGenProcessor implements Meth
         }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("export")
+                .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", "/export").build())
                 .addAnnotation(AnnotationSpec.builder(ApiOperation.class).addMember("value", "$S", "导出" + tableName).build())
                 .addParameter(ParameterSpec.builder(dto, "dto").build())
-                .returns(ParameterizedTypeName.get(returnInfo, TypeName.OBJECT));
+                .returns(TypeName.VOID.box());
 
 
         CodeBlock codeBlock = CodeBlock.builder()
                 .add("$T<$T> list = $N.voList($N);\n", List.class,vo, serviceName, "dto")
                 .add("$T<$T> excelUtil = new $T<>($T.class);\n", excelUtil, vo, excelUtil, vo)
                 .add("excelUtil.exportExcel(response, list,$S);\n", tableName)
-                .add("return ReturnInfo.success();")
                 .build();
 
         builder.addCode(codeBlock);

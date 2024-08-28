@@ -14,10 +14,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author YiQing
@@ -39,7 +36,7 @@ public class GenDtoProcessor extends BaseCodeGenProcessor {
         TypeSpec.Builder builder = TypeSpec.classBuilder(context.getDtoClassName()).addAnnotation(Data.class)
                 .addModifiers(Modifier.PUBLIC);
 
-        Set<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(DtoItem.class)));
+        List<VariableElement> fields = getFields(typeElement, e -> Objects.nonNull(e.getAnnotation(DtoItem.class)));
         Map<VariableElement, TypeName> dtoConvertMap = context.getDtoConvertMap();
 
         fields.forEach(field -> {

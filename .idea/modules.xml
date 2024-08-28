@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/codegen-apt/codegen-apt.iml" filepath="$PROJECT_DIR$/codegen-apt/codegen-apt.iml" />
-      <module fileurl="file://$PROJECT_DIR$/codegen-model/codegen-model.iml" filepath="$PROJECT_DIR$/codegen-model/codegen-model.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codegen-velocity/codegen-velocity.iml" filepath="$PROJECT_DIR$/codegen-velocity/codegen-velocity.iml" />
     </modules>
   </component>
 </project>

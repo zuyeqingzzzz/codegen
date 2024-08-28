@@ -197,7 +197,7 @@ public class VelocityUtils
                 column.setJavaType(GenConstants.TYPE_BIGDECIMAL);
             }
             // 如果是整形
-            else if (str != null && str.length == 1 && Integer.parseInt(str[0]) <= 10)
+            else if ((str != null && str.length == 1 && Integer.parseInt(str[0]) <= 10) || "int4".equals(dataType))
             {
                 column.setJavaType(GenConstants.TYPE_INTEGER);
             } else if (dataType.equals("numeric")) {

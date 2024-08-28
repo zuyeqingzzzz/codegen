@@ -24,7 +24,7 @@ import java.util.Optional;
 public class GenServiceImplProcessor extends BaseCodeGenProcessor implements MethodCreator {
 
     public static final String SUFFIX = "ServiceImpl";
-    String mapperName;
+    private String mapperName;
 
     @Override
     public void genClass(TypeElement typeElement, RoundEnvironment roundEnvironment) {
@@ -81,7 +81,7 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
         if (StringUtils.containsNull(entityPackageName, entityClassName, mapperName)) {
             return Optional.empty();
         }
-        MethodSpec.Builder build = MethodSpec.methodBuilder("insert")
+        MethodSpec.Builder build = MethodSpec.methodBuilder("submit")
                 .addParameter(ClassName.get(entityPackageName, entityClassName), "record")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
@@ -124,7 +124,7 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
         if (StringUtils.containsNull(context.getEntityClassName(), context.getEntityPackageName(), mapperName)) {
             return Optional.empty();
         }
-        MethodSpec.Builder build = MethodSpec.methodBuilder("delete")
+        MethodSpec.Builder build = MethodSpec.methodBuilder("remove")
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(TypeName.LONG.box(), "id")
                 .addAnnotation(Override.class)
@@ -146,7 +146,7 @@ public class GenServiceImplProcessor extends BaseCodeGenProcessor implements Met
         if (StringUtils.containsNull(entityPackageName, entityClassName, mapperName)) {
             return Optional.empty();
         }
-        MethodSpec.Builder build = MethodSpec.methodBuilder("findById")
+        MethodSpec.Builder build = MethodSpec.methodBuilder("details")
                 .addParameter(TypeName.LONG.box(), "id")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
